@@ -3,9 +3,12 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 import cv2
+import threading
 
 from models import gemini, paddle
 from models.yolo import yolov10
+
+cv_lock = threading.Lock()
 
 
 class Frame(object):
@@ -21,12 +24,12 @@ class Frame(object):
         }
         """
 
-        response = gemini.prompting(message=message, image_paths=[self.image_path])
-        return response
+        with cv_lock:
+            return gemini.prompting(message=message, image_paths=[self.image_path])
 
     def paddle_predict(self):
-        response = paddle.predict(image_path=self.image_path)
-        return response
+        with cv_lock:
+            return paddle.predict(image_path=self.image_path)
 
     def run_predict(self):
         """
