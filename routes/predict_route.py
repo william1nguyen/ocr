@@ -1,7 +1,9 @@
 import tempfile
-from fastapi import APIRouter, File, UploadFile
-from services.predict_service import *
 import time
+
+from fastapi import APIRouter, File, UploadFile
+
+from services.predict_service import Frame, Prediction
 
 predict_router = APIRouter(prefix="/predict", tags=["predict"])
 
@@ -16,8 +18,9 @@ async def detect_content(file: UploadFile = File(...)):
             frame = Frame(image_path=tmp.name)
             content = frame.run_predict()
         return content
-    except:
-        raise Exception("Failed to detect content")
+    except Exception as err:
+        print(f"Failed to detect content: {err}")
+        raise
 
 
 @predict_router.post("")

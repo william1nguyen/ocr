@@ -1,9 +1,11 @@
-from concurrent.futures import ThreadPoolExecutor
-import cv2
-import time
 import tempfile
-from models.yolo import yolov10
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+import cv2
+
 from models import gemini, paddle
+from models.yolo import yolov10
 
 
 class Frame(object):
@@ -99,8 +101,9 @@ class Prediction(object):
                         "bounding_box": bounding_box,
                         "content": str(content),
                     }
-        except:
-            raise Exception("Failed to predict bounding box content")
+        except Exception as err:
+            print(f"Failed to predict bounding box content: {err}")
+            raise
 
     def run_predict(self, max_workers=5):
         """

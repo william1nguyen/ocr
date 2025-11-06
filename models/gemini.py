@@ -1,4 +1,5 @@
 from env import env
+
 from . import vlm
 
 gemini = vlm.OpenAI(base_url=env.GEMINI_BASE_URL, api_key=env.GEMINI_API_KEY)

@@ -1,10 +1,12 @@
 import json
+
 from openai import OpenAI
+
 from utils import image
 
 
 def prompting(
-    client: OpenAI, model: str, message: str, image_paths: list[str], retries=1
+    client: OpenAI, model: str, message: str, image_paths: list[str], retries=3
 ):
     content = []
 
@@ -28,10 +30,12 @@ def prompting(
 
     messages = [{"role": "user", "content": content}]
 
-    for _ in range(retries):
+    for attempt in range(retries):
         try:
             response = client.chat.completions.create(
-                model=model, messages=messages, response_format={"type": "json_object"}
+                model=model,
+                messages=messages,
+                response_format={"type": "json_object"},
             )
 
             content = response.choices[0].message.content.strip()
@@ -46,7 +50,8 @@ def prompting(
                     return json.loads(content)
                 except json.JSONDecodeError as e:
                     raise ValueError(f"Invalid JSON returned: {e}") from e
-        except:
+        except Exception as err:
+            print(f"Prompting attempt: {attempt}/{retries} failed: {err}")
             pass
 
     return {"error": "No valid JSON content returned from response."}
